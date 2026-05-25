@@ -198,7 +198,7 @@ export default function HomePage() {
                         <Card
                             key={feature.title}
                             elevation={0}
-                            sx={{ border: '1px solid #E5E7EB', borderRadius: 4 }}
+                            sx={{ border: '1px solid #E5E7EB', borderRadius: 3 }}
                         >
                             <CardContent>
                                 <Box
@@ -254,7 +254,7 @@ export default function HomePage() {
                                 elevation={0}
                                 onClick={() => navigate(`/categories/${category.slug}`)}
                                 sx={{
-                                    borderRadius: 5,
+                                    borderRadius: 3,
                                     overflow: 'hidden',
                                     border: '1px solid #E5E7EB',
                                     cursor: 'pointer',

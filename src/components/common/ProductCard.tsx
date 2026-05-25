@@ -33,7 +33,7 @@ export default function ProductCard({
             sx={{
                 height: '100%',
                 border: '1px solid #E5E7EB',
-                borderRadius: 4,
+                borderRadius: 2,
                 overflow: 'hidden',
                 transition: '0.25s ease',
                 cursor: 'pointer',
@@ -47,7 +47,7 @@ export default function ProductCard({
             <Box
                 sx={{
                     position: 'relative',
-                    height: { xs: 240, sm: 260 },
+                    height: { xs: 200, sm: 240 },
                     bgcolor: '#F3F4F6',
                     overflow: 'hidden',
                 }}
