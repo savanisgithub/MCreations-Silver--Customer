@@ -42,15 +42,15 @@ export default function FavouritesPage() {
 
     return (
         <PageTransition>
-            <Container maxWidth="xl" sx={{ py: { xs: 4, md: 7 } }}>
+            <Container maxWidth="xl" sx={{  py: { xs: 2, md: 3 }}}>
                 <Box sx={{ textAlign: 'center', maxWidth: 760, mx: 'auto', mb: 5 }}>
-                    <Typography variant="overline" color="secondary.main">
-                        Saved Items
-                    </Typography>
-
                     <Typography
                         variant="h2"
-                        sx={{ fontSize: { xs: 38, md: 56 }, mb: 2 }}
+                        sx={{
+                            fontFamily: 'Georgia, Times New Roman, serif',
+                            fontSize: { xs: 38, md: 56 },
+                            mb: 2,
+                        }}
                     >
                         Your Favourites
                     </Typography>

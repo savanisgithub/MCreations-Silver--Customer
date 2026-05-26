@@ -30,15 +30,12 @@ export default function CategoriesPage() {
 
     return (
         <PageTransition>
-            <Container maxWidth="xl" sx={{ py: { xs: 4, md: 7 } }}>
-                <Box sx={{ textAlign: 'center', maxWidth: 760, mx: 'auto', mb: 5 }}>
-                    <Typography variant="overline" color="secondary.main">
-                        Collections
-                    </Typography>
-
+            <Container maxWidth="xl" sx={{  py: { xs: 2, md: 3 } }}>
+                <Box sx={{ textAlign: 'left', mx: 'auto', mb: 5 }}>
                     <Typography
                         variant="h2"
                         sx={{
+                            fontFamily: 'Georgia, Times New Roman, serif',
                             fontSize: { xs: 38, md: 56 },
                             mb: 2,
                         }}
@@ -69,8 +66,8 @@ export default function CategoriesPage() {
                         sx={{
                             display: 'grid',
                             gridTemplateColumns: {
-                                xs: '1fr',
-                                sm: 'repeat(2, 1fr)',
+                                xs: 'repeat(2, 1fr)',
+                                sm: 'repeat(3, 1fr)',
                                 lg: 'repeat(3, 1fr)',
                             },
                             gap: 3,
@@ -83,7 +80,7 @@ export default function CategoriesPage() {
                                 onClick={() => navigate(`/categories/${category.slug}`)}
                                 sx={{
                                     border: '1px solid #E5E7EB',
-                                    borderRadius: 5,
+                                    borderRadius: 0,
                                     overflow: 'hidden',
                                     cursor: 'pointer',
                                     transition: '260ms ease',
