@@ -27,6 +27,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { categoryService } from '../../services/category.service';
+import { favouriteService } from '../../services/favourite.service';
 
 type MenuType = 'jewellery' | 'categories' | null;
 
@@ -86,6 +87,12 @@ export default function CustomerHeader() {
     const { data: categories = [] } = useQuery({
         queryKey: ['header-categories'],
         queryFn: categoryService.getCategories,
+    });
+
+    const { data: favourites = [] } = useQuery({
+        queryKey: ['my-favourites'],
+        queryFn: favouriteService.getMyFavourites,
+        enabled: isAuthenticated,
     });
 
     const menuOpen = Boolean(activeMenu);
@@ -228,7 +235,7 @@ export default function CustomerHeader() {
                                 {isAuthenticated ? (
                                     <>
                                         <IconButton onClick={() => goTo('/favourites')}>
-                                            <Badge color="error" variant="dot">
+                                            <Badge color="error" badgeContent={favourites.length}>
                                                 <FavoriteBorderIcon />
                                             </Badge>
                                         </IconButton>
