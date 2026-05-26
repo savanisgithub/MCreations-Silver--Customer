@@ -173,7 +173,7 @@ export default function CustomerHeader() {
                                     }}
                                 />
                                 <Typography
-                                    variant="h6"
+                                    variant="h5"
                                     sx={{
                                         fontWeight: 900,
                                         letterSpacing: '-0.02em',
@@ -200,7 +200,7 @@ export default function CustomerHeader() {
                                             key={item.path}
                                             color="inherit"
                                             endIcon={
-                                                item.menuType ? <KeyboardArrowDownIcon /> : undefined
+                                                item.menuType ? <KeyboardArrowDownIcon sx={{ fontSize: 22 }} /> : undefined
                                             }
                                             onMouseEnter={() => {
                                                 if (item.menuType) {
@@ -212,6 +212,7 @@ export default function CustomerHeader() {
                                             onClick={() => goTo(item.path)}
                                             sx={{
                                                 px: 2,
+                                                fontSize: '1.09rem',
                                                 color: isActive ? 'secondary.main' : 'text.primary',
                                                 '&:hover': {
                                                     bgcolor: 'transparent',
@@ -229,28 +230,40 @@ export default function CustomerHeader() {
                                 sx={{
                                     display: { xs: 'none', md: 'flex' },
                                     alignItems: 'center',
-                                    gap: 1,
+                                    gap: 3.5,
                                 }}
                             >
                                 {isAuthenticated ? (
                                     <>
-                                        <IconButton onClick={() => goTo('/favourites')}>
+                                        <IconButton onClick={() => goTo('/favourites')} >
                                             <Badge color="error" badgeContent={favourites.length}>
-                                                <FavoriteBorderIcon />
+                                                <FavoriteBorderIcon sx={{ fontSize: 30, color: 'text.primary', }} />
                                             </Badge>
                                         </IconButton>
 
                                         <Button
                                             color="inherit"
-                                            startIcon={<PersonOutlineIcon />}
-                                            sx={{ color: 'text.primary' }}
+                                            sx={{
+                                                color: 'text.primary',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                fontSize: '1rem',
+                                            }}
                                         >
+                                            <PersonOutlineIcon sx={{ fontSize: 30, flexShrink: 0 }} />
                                             {user?.first_name}
                                         </Button>
 
                                         <Button
                                             variant="outlined"
-                                            startIcon={<LogoutIcon />}
+                                            sx={{
+                                                color: 'text.primary',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                fontSize: '1rem',
+                                            }}
+                                            startIcon={<LogoutIcon sx={{ fontSize: 28, flexShrink: 0 }} />}
                                             onClick={handleLogout}
                                         >
                                             Logout
@@ -268,12 +281,13 @@ export default function CustomerHeader() {
 
                             <IconButton
                                 onClick={() => setMobileOpen(true)}
+                                size="large"
                                 sx={{
                                     display: { xs: 'inline-flex', md: 'none' },
                                     ml: 'auto',
                                 }}
                             >
-                                <MenuIcon />
+                                <MenuIcon sx={{ fontSize: 32 }} />
                             </IconButton>
                         </Toolbar>
                     </Container>
@@ -325,7 +339,7 @@ export default function CustomerHeader() {
 
                                             <Button
                                                 variant="contained"
-                                                endIcon={<ArrowForwardIcon />}
+                                                endIcon={<ArrowForwardIcon sx={{ fontSize: 24 }} />}
                                                 onClick={() => goTo('/jewellery')}
                                             >
                                                 View All Jewellery
@@ -431,10 +445,6 @@ export default function CustomerHeader() {
                                         }}
                                     >
                                         <Box>
-                                            <Typography variant="overline" color="text.secondary">
-                                                Collections
-                                            </Typography>
-
                                             <Typography variant="h5" sx={{ mt: 1, mb: 1 }}>
                                                 Shop by category
                                             </Typography>
@@ -445,7 +455,7 @@ export default function CustomerHeader() {
 
                                             <Button
                                                 variant="contained"
-                                                endIcon={<ArrowForwardIcon />}
+                                                endIcon={<ArrowForwardIcon sx={{ fontSize: 24 }} />}
                                                 onClick={() => goTo('/categories')}
                                             >
                                                 View All Categories
@@ -510,9 +520,17 @@ export default function CustomerHeader() {
             >
                 <Box sx={{ width: 310, p: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                        <DiamondIcon color="secondary" />
+                        <Box
+                            component="img"
+                            src={Logo}
+                            alt="MCreations Logo"
+                            sx={{
+                                height: 50,
+                                width: 'auto',
+                            }}
+                        />
                         <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                            Silver Aura
+                            MCreations
                         </Typography>
                     </Box>
 
@@ -559,7 +577,7 @@ export default function CustomerHeader() {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                startIcon={<LogoutIcon />}
+                                startIcon={<LogoutIcon sx={{ fontSize: 28 }} />}
                                 onClick={handleLogout}
                             >
                                 Logout
