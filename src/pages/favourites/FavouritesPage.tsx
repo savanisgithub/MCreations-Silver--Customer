@@ -89,6 +89,7 @@ export default function FavouritesPage() {
                                 key={favourite.id}
                                 item={favourite.jewellery_item}
                                 isFavourite
+                                favouriteDisabled={removeFavouriteMutation.isPending}
                                 onFavouriteClick={handleFavourite}
                             />
                         ))}

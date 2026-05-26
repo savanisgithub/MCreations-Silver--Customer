@@ -11,13 +11,18 @@ import DiamondIcon from '@mui/icons-material/Diamond';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import ProductCard from '../../components/common/ProductCard';
 import PageLoading from '../../components/common/PageLoading';
 import PageError from '../../components/common/PageError';
 import { categoryService } from '../../services/category.service';
+import { favouriteService } from '../../services/favourite.service';
 import { jewelleryService } from '../../services/jewellery.service';
+import { useAuth } from '../../context/AuthContext';
+import ProductGridSkeleton from '../../components/common/ProductGridSkeleton';
+import type { JewelleryItem } from '../../types/jewellery.types';
 
 const features = [
     {
@@ -44,6 +49,9 @@ const features = [
 
 export default function HomePage() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { enqueueSnackbar } = useSnackbar();
+    const { isAuthenticated } = useAuth();
 
     const {
         data: categories = [],
@@ -66,6 +74,54 @@ export default function HomePage() {
                 limit: 8,
             }),
     });
+
+    const { data: favourites = [] } = useQuery({
+        queryKey: ['my-favourites'],
+        queryFn: favouriteService.getMyFavourites,
+        enabled: isAuthenticated,
+    });
+
+    const favouriteIds = favourites.map((fav) => fav.jewellery_item_id);
+
+    const addFavouriteMutation = useMutation({
+        mutationFn: favouriteService.addFavourite,
+        onSuccess: () => {
+            enqueueSnackbar('Added to favourites', { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['my-favourites'] });
+        },
+        onError: (error: any) => {
+            enqueueSnackbar(error.message || 'Failed to add favourite', {
+                variant: 'error',
+            });
+        },
+    });
+
+    const removeFavouriteMutation = useMutation({
+        mutationFn: favouriteService.removeFavourite,
+        onSuccess: () => {
+            enqueueSnackbar('Removed from favourites', { variant: 'success' });
+            queryClient.invalidateQueries({ queryKey: ['my-favourites'] });
+        },
+        onError: (error: any) => {
+            enqueueSnackbar(error.message || 'Failed to remove favourite', {
+                variant: 'error',
+            });
+        },
+    });
+
+    function handleFavourite(item: JewelleryItem) {
+        if (!isAuthenticated) {
+            enqueueSnackbar('Please login to save favourites', { variant: 'info' });
+            return;
+        }
+
+        if (favouriteIds.includes(item.id)) {
+            removeFavouriteMutation.mutate(item.id);
+            return;
+        }
+
+        addFavouriteMutation.mutate(item.id);
+    }
 
     return (
         <Box>
@@ -332,7 +388,7 @@ export default function HomePage() {
                     </Button>
                 </Box>
 
-                {jewelleryLoading && <PageLoading />}
+                {jewelleryLoading && <ProductGridSkeleton count={8} />}
                 {jewelleryError && <PageError message="Failed to load jewellery" />}
 
                 {!jewelleryLoading && !jewelleryError && (
@@ -348,7 +404,15 @@ export default function HomePage() {
                         }}
                     >
                         {jewellery?.data.map((item) => (
-                            <ProductCard key={item.id} item={item} />
+                            <ProductCard
+                                key={item.id}
+                                item={item}
+                                isFavourite={favouriteIds.includes(item.id)}
+                                favouriteDisabled={
+                                    addFavouriteMutation.isPending || removeFavouriteMutation.isPending
+                                }
+                                onFavouriteClick={handleFavourite}
+                            />
                         ))}
                     </Box>
                 )}
