@@ -19,7 +19,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import ProductCard from '../../components/common/ProductCard';
-import PageLoading from '../../components/common/PageLoading';
 import PageError from '../../components/common/PageError';
 import EmptyState from '../../components/common/EmptyState';
 import { categoryService } from '../../services/category.service';
@@ -28,6 +27,8 @@ import { jewelleryService } from '../../services/jewellery.service';
 import { useAuth } from '../../context/AuthContext';
 import type { JewelleryItem, JewelleryMaterial } from '../../types/jewellery.types';
 import PageTransition from '../../components/common/PageTransition';
+import { useDebounce } from '../../hooks/useDebounce';
+import ProductGridSkeleton from '../../components/common/ProductGridSkeleton';
 
 export default function JewelleryListPage() {
     const { slug } = useParams();
@@ -45,11 +46,11 @@ export default function JewelleryListPage() {
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
-    const [material, setMaterial] = useState<JewelleryMaterial | ''>(
-        initialMaterial || '',
-    );
+    const [material, setMaterial] = useState<JewelleryMaterial | ''>('');
     const [categoryId, setCategoryId] = useState<number | ''>('');
     const [filterOpen, setFilterOpen] = useState(false);
+
+    const debouncedSearch = useDebounce(search, 450);
 
     const limit = 12;
 
@@ -63,8 +64,29 @@ export default function JewelleryListPage() {
     useEffect(() => {
         if (selectedCategory) {
             setCategoryId(selectedCategory.id);
+        } else if (!slug) {
+            setCategoryId('');
         }
-    }, [selectedCategory]);
+
+        setPage(1);
+    }, [selectedCategory, slug]);
+
+    useEffect(() => {
+        const queryMaterial = searchParams.get('material') as JewelleryMaterial | null;
+
+        if (
+            queryMaterial === 'SILVER' ||
+            queryMaterial === 'GOLD' ||
+            queryMaterial === 'PLATINUM' ||
+            queryMaterial === 'OTHER'
+        ) {
+            setMaterial(queryMaterial);
+        } else {
+            setMaterial('');
+        }
+
+        setPage(1);
+    }, [searchParams]);
 
     const {
         data,
@@ -75,7 +97,7 @@ export default function JewelleryListPage() {
         queryKey: [
             'customer-jewellery',
             page,
-            search,
+            debouncedSearch,
             material,
             categoryId,
             slug,
@@ -84,7 +106,7 @@ export default function JewelleryListPage() {
             jewelleryService.getJewelleryItems({
                 page,
                 limit,
-                search: search || undefined,
+                search: debouncedSearch || undefined,
                 material: material || undefined,
                 category_id: categoryId === '' ? undefined : categoryId,
             }),
@@ -268,7 +290,7 @@ export default function JewelleryListPage() {
                     </Box>
 
                     <Box>
-                        {isLoading && <PageLoading minHeight={420} />}
+                        {isLoading && <ProductGridSkeleton count={12} />}
 
                         {isError && (
                             <PageError
@@ -298,6 +320,9 @@ export default function JewelleryListPage() {
                                             key={item.id}
                                             item={item}
                                             isFavourite={favouriteIds.includes(item.id)}
+                                            favouriteDisabled={
+                                                addFavouriteMutation.isPending || removeFavouriteMutation.isPending
+                                            }
                                             onFavouriteClick={handleFavourite}
                                         />
                                     ))}

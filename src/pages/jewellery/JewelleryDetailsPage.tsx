@@ -23,6 +23,7 @@ import { jewelleryService } from '../../services/jewellery.service';
 import { useAuth } from '../../context/AuthContext';
 import { getPrimaryImage } from '../../utils/image';
 import PageTransition from '../../components/common/PageTransition';
+import ProductDetailsSkeleton from '../../components/common/ProductDetailsSkeleton';
 
 export default function JewelleryDetailsPage() {
     const { slug } = useParams();
@@ -81,7 +82,7 @@ export default function JewelleryDetailsPage() {
     });
 
     if (isLoading) {
-        return <PageLoading minHeight="70vh" />;
+        return <ProductDetailsSkeleton />;
     }
 
     if (isError || !item) {
