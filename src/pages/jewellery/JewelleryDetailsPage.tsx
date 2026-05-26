@@ -207,6 +207,7 @@ export default function JewelleryDetailsPage() {
                         <Typography
                             variant="h2"
                             sx={{
+                                fontFamily: 'Georgia, Times New Roman, serif',
                                 fontSize: { xs: 38, md: 50 },
                                 mt: 1,
                                 mb: 2,

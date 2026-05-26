@@ -243,7 +243,10 @@ export default function JewelleryListPage() {
                     <Box>
                         <Typography
                             variant="h2"
-                            sx={{ fontSize: { xs: 38, md: 56 } }}
+                            sx={{
+                                fontFamily: 'Georgia, Times New Roman, serif',
+                                fontSize: { xs: 38, md: 56 },
+                            }}
                         >
                             {selectedCategory?.name || 'Jewellery'}
                         </Typography>
@@ -277,8 +280,8 @@ export default function JewelleryListPage() {
                             display: { xs: 'none', md: 'block' },
                             position: 'sticky',
                             top: 104,
-                            border: '1px solid #E5E7EB',
-                            borderRadius: 4,
+                            border: '1.5px solid #E5E7EB',
+                            borderRadius: 0,
                             bgcolor: 'background.paper',
                             p: 2.5,
                         }}
