@@ -8,6 +8,7 @@ import FavouritesPage from '../pages/favourites/FavouritesPage';
 import LoginPage from '../pages/auth/LoginPage';
 import SignupPage from '../pages/auth/SignupPage';
 import ProtectedRoute from '../components/layout/ProtectedRoutes';
+import NotFoundPage from '../pages/not-found/NotFoundPage';
 
 
 export const router = createBrowserRouter([
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
                         element: <FavouritesPage />,
                     },
                 ],
+            },
+            {
+                path: '*',
+                element: <NotFoundPage />,
             },
         ],
     },
