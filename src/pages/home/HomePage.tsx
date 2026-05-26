@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DiamondIcon from '@mui/icons-material/Diamond';
+import BannerImage1 from '../../assets/Banner Image2.png';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
@@ -23,6 +24,7 @@ import { jewelleryService } from '../../services/jewellery.service';
 import { useAuth } from '../../context/AuthContext';
 import ProductGridSkeleton from '../../components/common/ProductGridSkeleton';
 import type { JewelleryItem } from '../../types/jewellery.types';
+import EmptyState from '../../components/common/EmptyState';
 
 const features = [
     {
@@ -127,7 +129,7 @@ export default function HomePage() {
         <Box>
             <Box
                 sx={{
-                    minHeight: { xs: 560, md: 640 },
+                    minHeight: { xs: 360, md: 530 },
                     display: 'flex',
                     alignItems: 'center',
                     background:
@@ -139,10 +141,10 @@ export default function HomePage() {
                     <Box
                         sx={{
                             display: 'grid',
-                            gridTemplateColumns: { xs: '1fr', md: '1.05fr 0.95fr' },
-                            gap: { xs: 4, md: 8 },
+                            gridTemplateColumns: { xs: '1fr', md: '1.05fr 1fr' },
+                            gap: { xs: 4, md: 4 },
                             alignItems: 'center',
-                            py: { xs: 8, md: 10 },
+                            py: { xs: 2, md: 3 },
                         }}
                     >
                         <Box>
@@ -212,32 +214,221 @@ export default function HomePage() {
                         <Box
                             sx={{
                                 display: { xs: 'none', md: 'block' },
-                                borderRadius: 8,
-                                minHeight: 440,
+                                borderRadius: 4,
+                                minHeight: { md: 380, lg: 440 },
                                 background:
                                     'radial-gradient(circle at top left, rgba(255,255,255,0.32), rgba(255,255,255,0.05)), linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04))',
                                 border: '1px solid rgba(255,255,255,0.22)',
                                 backdropFilter: 'blur(12px)',
-                                p: 3,
+                                p: 1,
+                                overflow: 'hidden',
                             }}
                         >
                             <Box
+                                component="img"
+                                src={BannerImage1}
+                                alt="BannerImage"
                                 sx={{
+                                    width: '100%',
                                     height: '100%',
-                                    borderRadius: 6,
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    bgcolor: 'rgba(255,255,255,0.09)',
+                                    borderRadius: 4,
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
                                 }}
-                            >
-                                <DiamondIcon sx={{ fontSize: 190, color: 'secondary.light' }} />
-                            </Box>
+                            />
                         </Box>
                     </Box>
                 </Container>
             </Box>
 
-            <Container maxWidth="xl" sx={{ py: { xs: 5, md: 8 } }}>
+            <Container maxWidth="xl" sx={{ py: { xs: 2, md: 6 } }}>
+                <Box sx={{ mb: { xs: 4, md: 8 } }}>
+                    <Box
+                        sx={{
+                            textAlign: 'center',
+                            mb: { xs: 2, md: 3 },
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                fontFamily: 'Georgia, Times New Roman, serif',
+                                fontSize: { xs: 34, md: 46 },
+                                fontWeight: 400,
+                                color: 'text.primary',
+                                letterSpacing: '-0.03em',
+                            }}
+                        >
+                            Shop by Category
+                        </Typography>
+                    </Box>
+
+                    {categoriesLoading && <PageLoading minHeight={280} />}
+
+                    {categoriesError && <PageError message="Failed to load categories" />}
+
+                    {!categoriesLoading && !categoriesError && categories.length === 0 && (
+                        <EmptyState message="No categories available." />
+                    )}
+
+                    {!categoriesLoading && !categoriesError && categories.length > 0 && (
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gridTemplateColumns: {
+                                    xs: '1fr',
+                                    sm: 'repeat(3, 1fr)',
+                                    md: 'repeat(3, 1fr)',
+                                    lg: 'repeat(5, 1fr)',
+                                },
+                                gap: {
+                                    xs: 3,
+                                    md: 3.5,
+                                },
+                            }}
+                        >
+                            {categories.slice(0, 5).map((category) => (
+                                <Box
+                                    key={category.id}
+                                    onClick={() => navigate(`/categories/${category.slug}`)}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        textAlign: 'center',
+                                        group: 'category',
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            height: {
+                                                xs: 240,
+                                                sm: 250,
+                                                md: 220,
+                                            },
+                                            bgcolor: '#F3F4F6',
+                                            overflow: 'hidden',
+                                            mb: 2.5,
+                                            borderRadius: 0,
+                                        }}
+                                    >
+                                        {category.image_url ? (
+                                            <Box
+                                                component="img"
+                                                src={category.image_url}
+                                                alt={category.name}
+                                                sx={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: 0,
+                                                    transition: 'transform 420ms ease',
+                                                    '&:hover': {
+                                                        transform: 'scale(1.045)',
+                                                    },
+                                                }}
+                                            />
+                                        ) : (
+                                            <Box
+                                                sx={{
+                                                    height: '100%',
+                                                    display: 'grid',
+                                                    placeItems: 'center',
+                                                    bgcolor: '#EEF0F2',
+                                                }}
+                                            >
+                                                <DiamondIcon
+                                                    color="secondary"
+                                                    sx={{
+                                                        fontSize: 76,
+                                                    }}
+                                                />
+                                            </Box>
+                                        )}
+                                    </Box>
+
+                                    <Typography
+                                        sx={{
+                                            fontSize: 14,
+                                            fontWeight: 800,
+                                            letterSpacing: '0.22em',
+                                            textTransform: 'uppercase',
+                                            color: 'text.primary',
+                                            transition: 'color 180ms ease',
+                                            '&:hover': {
+                                                color: 'secondary.main',
+                                            },
+                                        }}
+                                    >
+                                        {category.name}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    )}
+                </Box>
+
+                <Box sx={{ mb: 4 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            mb: 3,
+                        }}
+                    >
+                        <Box sx={{ flex: 1, textAlign: 'center' }}>
+                            <Typography
+                                sx={{
+                                    fontFamily: 'Georgia, Times New Roman, serif',
+                                    fontSize: { xs: 34, md: 46 },
+                                    fontWeight: 400,
+                                    color: 'text.primary',
+                                    letterSpacing: '-0.03em',
+                                }}
+                            >
+                                Latest Jewellery
+                            </Typography>
+                        </Box>
+                        <Button
+                            variant="outlined"
+                            endIcon={<ArrowForwardIcon />}
+                            onClick={() => navigate('/jewellery')}
+                            sx={{ flexShrink: 0 }}
+                        >
+                            View All
+                        </Button>
+                    </Box>
+                </Box>
+
+                {jewelleryLoading && <ProductGridSkeleton count={8} />}
+                {jewelleryError && <PageError message="Failed to load jewellery" />}
+
+                {!jewelleryLoading && !jewelleryError && (
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xs: 'repeat(2, 1fr)',
+                                sm: 'repeat(3, 1fr)',
+                                md: 'repeat(4, 1fr)',
+                                lg: 'repeat(4, 1fr)',
+                            },
+                            mb: 9,
+                            gap: 2,
+                        }}
+                    >
+                        {jewellery?.data.map((item) => (
+                            <ProductCard
+                                key={item.id}
+                                item={item}
+                                isFavourite={favouriteIds.includes(item.id)}
+                                favouriteDisabled={
+                                    addFavouriteMutation.isPending || removeFavouriteMutation.isPending
+                                }
+                                onFavouriteClick={handleFavourite}
+                            />
+                        ))}
+                    </Box>
+                )}
+
                 <Box
                     sx={{
                         display: 'grid',
@@ -247,7 +438,7 @@ export default function HomePage() {
                             lg: 'repeat(4, 1fr)',
                         },
                         gap: 2,
-                        mb: 8,
+                        mb: -5,
                     }}
                 >
                     {features.map((feature) => (
@@ -280,142 +471,6 @@ export default function HomePage() {
                         </Card>
                     ))}
                 </Box>
-
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h3">Shop by Category</Typography>
-                    <Typography color="text.secondary">
-                        Explore jewellery collections by style.
-                    </Typography>
-                </Box>
-
-                {categoriesLoading && <PageLoading />}
-                {categoriesError && <PageError message="Failed to load categories" />}
-
-                {!categoriesLoading && !categoriesError && (
-                    <Box
-                        sx={{
-                            display: 'grid',
-                            gridTemplateColumns: {
-                                xs: '1fr',
-                                sm: 'repeat(2, 1fr)',
-                                lg: 'repeat(4, 1fr)',
-                            },
-                            gap: 2,
-                            mb: 8,
-                        }}
-                    >
-                        {categories.slice(0, 4).map((category) => (
-                            <Card
-                                key={category.id}
-                                elevation={0}
-                                onClick={() => navigate(`/categories/${category.slug}`)}
-                                sx={{
-                                    borderRadius: 3,
-                                    overflow: 'hidden',
-                                    border: '1px solid #E5E7EB',
-                                    cursor: 'pointer',
-                                    transition: '0.25s ease',
-                                    '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: '0 18px 45px rgba(15,23,42,0.10)',
-                                    },
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        height: 190,
-                                        bgcolor: '#F3F4F6',
-                                    }}
-                                >
-                                    {category.image_url ? (
-                                        <Box
-                                            component="img"
-                                            src={category.image_url}
-                                            alt={category.name}
-                                            sx={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover',
-                                            }}
-                                        />
-                                    ) : (
-                                        <Box
-                                            sx={{
-                                                height: '100%',
-                                                display: 'grid',
-                                                placeItems: 'center',
-                                            }}
-                                        >
-                                            <DiamondIcon color="secondary" sx={{ fontSize: 70 }} />
-                                        </Box>
-                                    )}
-                                </Box>
-
-                                <CardContent>
-                                    <Typography variant="h6">{category.name}</Typography>
-                                    <Typography color="text.secondary">
-                                        {category.description || 'Explore collection'}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </Box>
-                )}
-
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: { xs: 'flex-start', md: 'center' },
-                        flexDirection: { xs: 'column', md: 'row' },
-                        gap: 2,
-                        mb: 4,
-                    }}
-                >
-                    <Box>
-                        <Typography variant="h3">Latest Jewellery</Typography>
-                        <Typography color="text.secondary">
-                            Recently added jewellery pieces.
-                        </Typography>
-                    </Box>
-
-                    <Button
-                        variant="outlined"
-                        endIcon={<ArrowForwardIcon />}
-                        onClick={() => navigate('/jewellery')}
-                    >
-                        View All
-                    </Button>
-                </Box>
-
-                {jewelleryLoading && <ProductGridSkeleton count={8} />}
-                {jewelleryError && <PageError message="Failed to load jewellery" />}
-
-                {!jewelleryLoading && !jewelleryError && (
-                    <Box
-                        sx={{
-                            display: 'grid',
-                            gridTemplateColumns: {
-                                xs: '1fr',
-                                sm: 'repeat(2, 1fr)',
-                                lg: 'repeat(4, 1fr)',
-                            },
-                            gap: 3,
-                        }}
-                    >
-                        {jewellery?.data.map((item) => (
-                            <ProductCard
-                                key={item.id}
-                                item={item}
-                                isFavourite={favouriteIds.includes(item.id)}
-                                favouriteDisabled={
-                                    addFavouriteMutation.isPending || removeFavouriteMutation.isPending
-                                }
-                                onFavouriteClick={handleFavourite}
-                            />
-                        ))}
-                    </Box>
-                )}
             </Container>
         </Box>
     );
