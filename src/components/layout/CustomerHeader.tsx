@@ -250,6 +250,7 @@ export default function CustomerHeader() {
                                                 gap: 1,
                                                 fontSize: '1rem',
                                             }}
+                                            onClick={() => goTo('/profile')}
                                         >
                                             <PersonOutlineIcon sx={{ fontSize: 30, flexShrink: 0 }} />
                                             {user?.first_name}
@@ -271,7 +272,7 @@ export default function CustomerHeader() {
                                     </>
                                 ) : (
                                     <>
-                                        <Button onClick={() => goTo('/login')}>Login</Button>
+                                        <Button sx={{ fontSize: '1rem' }} onClick={() => goTo('/login')}>Login</Button>
                                         <Button variant="contained" onClick={() => goTo('/signup')}>
                                             Sign Up
                                         </Button>
@@ -550,6 +551,12 @@ export default function CustomerHeader() {
                         <ListItemButton onClick={() => goTo('/favourites')}>
                             <ListItemText primary="Favourites" />
                         </ListItemButton>
+
+                        {isAuthenticated && (
+                            <ListItemButton onClick={() => goTo('/profile')}>
+                                <ListItemText primary="My Profile" />
+                            </ListItemButton>
+                        )}
                     </List>
 
                     <Typography
