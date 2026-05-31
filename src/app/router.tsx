@@ -9,6 +9,9 @@ import LoginPage from '../pages/auth/LoginPage';
 import SignupPage from '../pages/auth/SignupPage';
 import ProtectedRoute from '../components/layout/ProtectedRoutes';
 import NotFoundPage from '../pages/not-found/NotFoundPage';
+import ProfilePage from '../pages/profile/ProfilePage';
+import ForgotPasswordPage from '../pages/auth/ForgotPassword';
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 
 
 export const router = createBrowserRouter([
@@ -42,6 +45,10 @@ export const router = createBrowserRouter([
                         path: '/favourites',
                         element: <FavouritesPage />,
                     },
+                    {
+                        path: '/profile',
+                        element: <ProfilePage />,
+                    },
                 ],
             },
             {
@@ -57,5 +64,13 @@ export const router = createBrowserRouter([
     {
         path: '/signup',
         element: <SignupPage />,
+    },
+    {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />,
+    },
+    {
+        path: '/reset-password',
+        element: <ResetPasswordPage />,
     },
 ]);
