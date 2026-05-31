@@ -9,7 +9,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import DiamondIcon from '@mui/icons-material/Diamond';
+import Logo from '../../../public/logo.png';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -88,8 +88,16 @@ export default function SignupPage() {
                 >
                     <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                         <Box sx={{ textAlign: 'center', mb: 3 }}>
-                            <DiamondIcon color="secondary" sx={{ fontSize: 46 }} />
-                            <Typography variant="h5" sx={{ mt: 1 }}>
+                            <Box
+                                component="img"
+                                src={Logo}
+                                alt="MCreations Logo"
+                                sx={{
+                                    height: 80,
+                                    width: 'auto',
+                                }}
+                            />
+                            <Typography variant="h5">
                                 Create Account
                             </Typography>
                             <Typography color="text.secondary">
@@ -193,7 +201,7 @@ export default function SignupPage() {
                                 sx={{ textAlign: 'center', mt: 2 }}
                             >
                                 Already have an account?{' '}
-                                <Button size="small" onClick={() => navigate('/login')}>
+                                <Button size="medium" onClick={() => navigate('/login')}>
                                     Sign in
                                 </Button>
                             </Typography>
