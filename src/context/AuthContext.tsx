@@ -18,6 +18,8 @@ interface AuthContextValue {
     login: (payload: LoginPayload) => Promise<void>;
     signup: (payload: SignupPayload) => Promise<void>;
     logout: () => Promise<void>;
+    refreshProfile: () => Promise<void>;
+    updateLocalUser: (user: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -69,6 +71,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.user);
     }
 
+    async function refreshProfile() {
+        const profile = await authService.getProfile();
+        localStorage.setItem(USER_KEY, JSON.stringify(profile));
+        setUser(profile);
+    }
+
+    function updateLocalUser(updatedUser: AuthUser) {
+        localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+        setUser(updatedUser);
+    }
+
     async function logout() {
         try {
             await authService.logout();
@@ -91,6 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             login,
             signup,
             logout,
+            refreshProfile,
+            updateLocalUser,
         }),
         [user, isLoading],
     );

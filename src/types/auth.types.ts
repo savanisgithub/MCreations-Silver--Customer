@@ -27,3 +27,18 @@ export interface AuthResponseData {
     access_token: string;
     refresh_token: string;
 }
+
+export interface UpdateProfilePayload {
+    first_name: string;
+    last_name: string;
+}
+
+export interface ForgotPasswordPayload {
+    email: string;
+}
+
+export interface ResetPasswordPayload {
+    email: string;
+    otp: string;
+    new_password: string;
+}

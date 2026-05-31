@@ -9,50 +9,51 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import Logo from '../../../public/logo.png';
+import DiamondIcon from '@mui/icons-material/Diamond';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import type { LoginPayload } from '../../types/auth.types';
-import { loginSchema } from '../../validation/login.schema';
+import { authService } from '../../services/auth.service';
+import type { ResetPasswordPayload } from '../../types/auth.types';
+import { resetPasswordSchema } from '../../validation/forgot-password.schema';
 
-const defaultValues: LoginPayload = {
+const defaultValues: ResetPasswordPayload = {
     email: '',
-    password: '',
+    otp: '',
+    new_password: '',
 };
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
-    const { login, isAuthenticated } = useAuth();
+
     const [pageError, setPageError] = useState<string | null>(null);
 
     const {
         control,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<LoginPayload>({
+    } = useForm<ResetPasswordPayload>({
         defaultValues,
-        resolver: yupResolver(loginSchema),
+        resolver: yupResolver(resetPasswordSchema),
     });
 
-    if (isAuthenticated) {
-        return <Navigate to="/" replace />;
-    }
-
-    async function onSubmit(values: LoginPayload) {
+    async function onSubmit(values: ResetPasswordPayload) {
         setPageError(null);
 
         try {
-            await login(values);
-            enqueueSnackbar('Logged in successfully', { variant: 'success' });
-            navigate('/', { replace: true });
+            await authService.resetPassword(values);
+
+            enqueueSnackbar('Password reset successfully. Please login.', {
+                variant: 'success',
+            });
+
+            navigate('/login', { replace: true });
         } catch (error: any) {
-            const message = error.message || 'Login failed';
+            const message = error.message || 'Failed to reset password';
             setPageError(message);
             enqueueSnackbar(message, { variant: 'error' });
         }
@@ -68,38 +69,26 @@ export default function LoginPage() {
                 px: 2,
             }}
         >
-            <Container maxWidth="sm">
+            <Container maxWidth="xs">
                 <Button
                     startIcon={<ArrowBackIcon />}
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/forgot-password')}
                     sx={{ mb: 2 }}
                 >
-                    Back to Store
+                    Back
                 </Button>
 
-                <Card
-                    elevation={0}
-                    sx={{
-                        border: '1px solid #E5E7EB',
-                        borderRadius: 4,
-                    }}
-                >
+                <Card elevation={0} sx={{ border: '1px solid #E5E7EB', borderRadius: 4 }}>
                     <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                         <Box sx={{ textAlign: 'center', mb: 3 }}>
-                            <Box
-                                component="img"
-                                src={Logo}
-                                alt="MCreations Logo"
-                                sx={{
-                                    height: 80,
-                                    width: 'auto',
-                                }}
-                            />
-                            <Typography variant="h5">
-                                Welcome Back
+                            <DiamondIcon color="secondary" sx={{ fontSize: 46 }} />
+
+                            <Typography variant="h5" sx={{ mt: 1 }}>
+                                Reset Password
                             </Typography>
+
                             <Typography color="text.secondary">
-                                Sign in to manage your favourites.
+                                Enter your reset code and new password.
                             </Typography>
                         </Box>
 
@@ -127,26 +116,37 @@ export default function LoginPage() {
                             />
 
                             <Controller
-                                name="password"
+                                name="otp"
                                 control={control}
                                 render={({ field }) => (
                                     <TextField
                                         {...field}
-                                        label="Password"
-                                        type="password"
+                                        label="Reset Code"
                                         fullWidth
                                         sx={{ mb: 2 }}
-                                        error={Boolean(errors.password)}
-                                        helperText={errors.password?.message}
+                                        error={Boolean(errors.otp)}
+                                        helperText={errors.otp?.message}
                                     />
                                 )}
                             />
 
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                                <Button size="small" onClick={() => navigate('/forgot-password')}>
-                                    Forgot password?
-                                </Button>
-                            </Box>
+                            <Controller
+                                name="new_password"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        label="New Password"
+                                        type="password"
+                                        fullWidth
+                                        sx={{ mb: 2 }}
+                                        error={Boolean(errors.new_password)}
+                                        helperText={
+                                            errors.new_password?.message || 'Minimum 6 characters'
+                                        }
+                                    />
+                                )}
+                            />
 
                             <Button
                                 type="submit"
@@ -158,20 +158,9 @@ export default function LoginPage() {
                                 {isSubmitting ? (
                                     <CircularProgress size={22} color="inherit" />
                                 ) : (
-                                    'Sign In'
+                                    'Reset Password'
                                 )}
                             </Button>
-
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ textAlign: 'center', mt: 2 }}
-                            >
-                                Don&apos;t have an account?{' '}
-                                <Button size="medium" onClick={() => navigate('/signup')}>
-                                    Create one
-                                </Button>
-                            </Typography>
                         </Box>
                     </CardContent>
                 </Card>
