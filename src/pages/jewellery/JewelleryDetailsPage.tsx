@@ -10,12 +10,10 @@ import {
 } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DiamondIcon from '@mui/icons-material/Diamond';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import PageLoading from '../../components/common/PageLoading';
 import PageError from '../../components/common/PageError';
 import PriceDisplay from '../../components/common/PriceDisplay';
 import { favouriteService } from '../../services/favourite.service';
@@ -27,7 +25,6 @@ import ProductDetailsSkeleton from '../../components/common/ProductDetailsSkelet
 
 export default function JewelleryDetailsPage() {
     const { slug } = useParams();
-    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
     const { isAuthenticated } = useAuth();

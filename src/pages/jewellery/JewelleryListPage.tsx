@@ -42,8 +42,6 @@ export default function JewelleryListPage() {
         [location.search],
     );
 
-    const initialMaterial = searchParams.get('material') as JewelleryMaterial | null;
-
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [material, setMaterial] = useState<JewelleryMaterial | ''>('');

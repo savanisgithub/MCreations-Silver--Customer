@@ -16,7 +16,6 @@ import {
     Typography,
 } from '@mui/material';
 import Logo from '../../../public/logo.png';
-import DiamondIcon from '@mui/icons-material/Diamond';
 import MenuIcon from '@mui/icons-material/Menu';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LogoutIcon from '@mui/icons-material/Logout';
