@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import {
     AppBar,
     Badge,
@@ -19,16 +19,20 @@ import Logo from '../../../public/logo.png';
 import MenuIcon from '@mui/icons-material/Menu';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DiamondIcon from '@mui/icons-material/Diamond';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { categoryService } from '../../services/category.service';
 import { favouriteService } from '../../services/favourite.service';
+import { gemstoneCategoryService } from '../../services/gemstone-category.service';
+import { gemstoneService } from '../../services/gemstone.service';
+import type { Gemstone } from '../../types/gemstone.type';
 
-type MenuType = 'jewellery' | 'categories' | null;
+type MenuType = 'jewellery' | 'categories' | 'gemstones' | null;
 
 const navItems: {
     label: string;
@@ -45,10 +49,16 @@ const navItems: {
             menuType: 'jewellery',
         },
         {
+            label: 'Gemstones',
+            path: '/gemstones',
+            menuType: 'gemstones',
+        },
+        {
             label: 'Categories',
             path: '/categories',
             menuType: 'categories',
         },
+
     ];
 
 const materialLinks = [
@@ -74,12 +84,42 @@ const materialLinks = [
     },
 ];
 
+function getActiveHeaderPath(pathname: string) {
+    if (pathname === '/') {
+        return '/';
+    }
+
+    if (pathname.startsWith('/jewellery')) {
+        return '/jewellery';
+    }
+
+    if (pathname.startsWith('/categories')) {
+        return '/categories';
+    }
+
+    if (pathname.startsWith('/gemstones') || pathname.startsWith('/gemstone-categories')) {
+        return '/gemstones';
+    }
+
+    if (pathname.startsWith('/favourites')) {
+        return '/favourites';
+    }
+
+    if (pathname.startsWith('/profile')) {
+        return '/profile';
+    }
+
+    return '';
+}
+
 export default function CustomerHeader() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { isAuthenticated, user, logout } = useAuth();
 
     const [mobileOpen, setMobileOpen] = useState(false);
     const [activeMenu, setActiveMenu] = useState<MenuType>(null);
+    const activeHeaderPath = getActiveHeaderPath(location.pathname);
 
     const closeTimerRef = useRef<number | null>(null);
 
@@ -87,6 +127,36 @@ export default function CustomerHeader() {
         queryKey: ['header-categories'],
         queryFn: categoryService.getCategories,
     });
+
+    const { data: gemstoneCategories = [] } = useQuery({
+        queryKey: ['header-gemstone-category-tree'],
+        queryFn: gemstoneCategoryService.getPublicTree,
+    });
+
+    const { data: headerGemstones } = useQuery({
+        queryKey: ['header-gemstones-preview'],
+        queryFn: () =>
+            gemstoneService.getGemstones({
+                page: 1,
+                limit: 36,
+            }),
+    });
+
+    const gemstonesByCategoryId = useMemo(() => {
+        const grouped = new Map<number, Gemstone[]>();
+        const gemstones = headerGemstones?.data || [];
+
+        gemstones.forEach((gemstone) => {
+            const current = grouped.get(gemstone.gemstone_category_id) || [];
+
+            grouped.set(gemstone.gemstone_category_id, [
+                ...current,
+                gemstone,
+            ]);
+        });
+
+        return grouped;
+    }, [headerGemstones]);
 
     const { data: favourites = [] } = useQuery({
         queryKey: ['my-favourites'],
@@ -192,7 +262,8 @@ export default function CustomerHeader() {
                                 }}
                             >
                                 {navItems.map((item) => {
-                                    const isActive = activeMenu === item.menuType;
+                                    const isActive = activeHeaderPath === item.path;
+                                    const isMenuActive = activeMenu === item.menuType;
 
                                     return (
                                         <Button
@@ -210,12 +281,25 @@ export default function CustomerHeader() {
                                             }}
                                             onClick={() => goTo(item.path)}
                                             sx={{
+                                                position: 'relative',
                                                 px: 2,
                                                 fontSize: '1.09rem',
-                                                color: isActive ? 'secondary.main' : 'text.primary',
+                                                fontWeight: isActive ? 900 : 700,
+                                                color: isActive || isMenuActive ? 'secondary.main' : 'text.primary',
                                                 '&:hover': {
-                                                    bgcolor: 'transparent',
                                                     color: 'secondary.main',
+                                                },
+                                                '&::after': {
+                                                    content: '""',
+                                                    position: 'absolute',
+                                                    left: 18,
+                                                    right: 18,
+                                                    bottom: 5,
+                                                    height: 3,
+                                                    borderRadius: 999,
+                                                    bgcolor: 'secondary.main',
+                                                    opacity: isActive ? 1 : 0,
+                                                    transition: 'opacity 160ms ease',
                                                 },
                                             }}
                                         >
@@ -234,20 +318,40 @@ export default function CustomerHeader() {
                             >
                                 {isAuthenticated ? (
                                     <>
-                                        <IconButton onClick={() => goTo('/favourites')} >
+                                        <IconButton
+                                            onClick={() => goTo('/favourites')}
+                                            sx={{
+                                                color: activeHeaderPath === '/favourites' ? 'secondary.main' : 'text.primary',
+                                                bgcolor:
+                                                    activeHeaderPath === '/favourites'
+                                                        ? 'rgba(191, 164, 111, 0.12)'
+                                                        : 'transparent',
+                                                '&:hover': {
+                                                    bgcolor: 'rgba(191, 164, 111, 0.16)',
+                                                },
+                                            }}
+                                        >
                                             <Badge color="error" badgeContent={favourites.length}>
-                                                <FavoriteBorderIcon sx={{ fontSize: 30, color: 'text.primary', }} />
+                                                <FavoriteBorderIcon sx={{ fontSize: 30, color: 'inherit' }} />
                                             </Badge>
                                         </IconButton>
 
                                         <Button
                                             color="inherit"
                                             sx={{
-                                                color: 'text.primary',
+                                                color: activeHeaderPath === '/profile' ? 'secondary.main' : 'text.primary',
+                                                bgcolor:
+                                                    activeHeaderPath === '/profile'
+                                                        ? 'rgba(191, 164, 111, 0.12)'
+                                                        : 'transparent',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: 1,
                                                 fontSize: '1rem',
+                                                '&:hover': {
+                                                    bgcolor: 'rgba(191, 164, 111, 0.16)',
+                                                    color: 'secondary.main',
+                                                },
                                             }}
                                             onClick={() => goTo('/profile')}
                                         >
@@ -435,6 +539,387 @@ export default function CustomerHeader() {
                                     </Box>
                                 )}
 
+                                {activeMenu === 'gemstones' && (
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '400px 1fr',
+                                            gap: 4,
+                                            py: 4,
+                                        }}
+                                    >
+                                        <Box>
+                                            <Typography
+                                                variant="overline"
+                                                sx={{
+                                                    color: 'secondary.main',
+                                                    letterSpacing: '0.18em',
+                                                    fontWeight: 900,
+                                                }}
+                                            >
+                                                Gemstone Collection
+                                            </Typography>
+
+                                            <Typography
+                                                sx={{
+                                                    mt: 1,
+                                                    fontFamily: 'Georgia, Times New Roman, serif',
+                                                    fontSize: 32,
+                                                    lineHeight: 1.12,
+                                                    fontWeight: 700,
+                                                    color: '#111827',
+                                                }}
+                                            >
+                                                Browse stones by family
+                                            </Typography>
+
+                                            <Typography
+                                                color="text.secondary"
+                                                sx={{
+                                                    mt: 1.5,
+                                                    mb: 2.5,
+                                                    lineHeight: 1.7,
+                                                    fontSize: 15,
+                                                }}
+                                            >
+                                                Explore main gemstone categories, subcategories, individual
+                                                stones, and available certificate previews.
+                                            </Typography>
+
+                                            <Button
+                                                variant="contained"
+                                                endIcon={<ArrowForwardIcon />}
+                                                onClick={() => goTo('/gemstones')}
+                                                sx={{
+                                                    px: 2.5,
+                                                    py: 1.1,
+                                                    fontWeight: 800,
+                                                }}
+                                            >
+                                                View All Gemstones
+                                            </Button>
+
+                                            <Button
+                                                color="inherit"
+                                                onClick={() => goTo('/gemstone-categories')}
+                                                sx={{
+                                                    display: 'block',
+                                                    mt: 1.5,
+                                                    px: 0,
+                                                    fontWeight: 800,
+                                                    color: 'text.primary',
+                                                    '&:hover': {
+                                                        bgcolor: 'transparent',
+                                                        color: 'secondary.main',
+                                                    },
+                                                }}
+                                            >
+                                                Browse All Categories
+                                            </Button>
+                                        </Box>
+
+                                        <Box
+                                            sx={{
+                                                maxHeight: 430,
+                                                overflowY: 'auto',
+                                                p: 1,
+                                                display: 'grid',
+                                                gridTemplateColumns: 'repeat(3, minmax(250px, 1fr))',
+                                                gap: 2,
+                                                alignItems: 'start',
+                                                '&::-webkit-scrollbar': {
+                                                    width: 6,
+                                                },
+                                                '&::-webkit-scrollbar-thumb': {
+                                                    bgcolor: '#CBD5E1',
+                                                    borderRadius: 999,
+                                                },
+                                            }}
+                                        >
+                                            {gemstoneCategories.map((mainCategory) => {
+                                                const mainCategoryStones =
+                                                    gemstonesByCategoryId.get(mainCategory.id) || [];
+
+                                                const subcategories = mainCategory.children || [];
+
+                                                return (
+                                                    <Box
+                                                        key={mainCategory.id}
+                                                        sx={{
+                                                            border: '1px solid #E5E7EB',
+                                                            p: 2,
+                                                            bgcolor: '#FFFFFF',
+                                                            transition:
+                                                                'border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
+                                                            '&:hover': {
+                                                                borderColor: '#CBD5E1',
+                                                                boxShadow: '0 18px 40px rgba(15,23,42,0.08)',
+                                                                transform: 'translateY(-2px)',
+                                                            },
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'space-between',
+                                                                gap: 2,
+                                                                mb: subcategories.length > 0 ? 1.5 : 0,
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                onClick={() =>
+                                                                    goTo(`/gemstones?category=${mainCategory.id}`)
+                                                                }
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: 1.25,
+                                                                    cursor: 'pointer',
+                                                                    minWidth: 0,
+                                                                }}
+                                                            >
+                                                                <Box
+                                                                    sx={{
+                                                                        width: 42,
+                                                                        height: 42,
+                                                                        borderRadius: '50%',
+                                                                        bgcolor: '#F8FAFC',
+                                                                        border: '1px solid #E5E7EB',
+                                                                        display: 'grid',
+                                                                        placeItems: 'center',
+                                                                        flexShrink: 0,
+                                                                    }}
+                                                                >
+                                                                    {mainCategory.image_url ? (
+                                                                        <Box
+                                                                            component="img"
+                                                                            src={mainCategory.image_url}
+                                                                            alt={mainCategory.name}
+                                                                            sx={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                objectFit: 'cover',
+                                                                                borderRadius: '50%',
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <DiamondIcon
+                                                                            sx={{
+                                                                                color: 'secondary.main',
+                                                                                fontSize: 22,
+                                                                            }}
+                                                                        />
+                                                                    )}
+                                                                </Box>
+
+                                                                <Box sx={{ minWidth: 0 }}>
+                                                                    <Typography
+                                                                        sx={{
+                                                                            fontSize: 19,
+                                                                            lineHeight: 1.15,
+                                                                            fontWeight: 900,
+                                                                            color: '#111827',
+                                                                        }}
+                                                                    >
+                                                                        {mainCategory.name}
+                                                                    </Typography>
+
+                                                                    {/* {mainCategory.description && (
+                                                                        <Typography
+                                                                            sx={{
+                                                                                mt: 0.35,
+                                                                                color: 'text.secondary',
+                                                                                fontSize: 13,
+                                                                                lineHeight: 1.45,
+                                                                                display: '-webkit-box',
+                                                                                WebkitLineClamp: 1,
+                                                                                WebkitBoxOrient: 'vertical',
+                                                                                overflow: 'hidden',
+                                                                            }}
+                                                                        >
+                                                                            {mainCategory.description}
+                                                                        </Typography>
+                                                                    )} */}
+                                                                </Box>
+                                                            </Box>
+
+                                                            <Button
+                                                                size="small"
+                                                                onClick={() =>
+                                                                    goTo(`/gemstones?category=${mainCategory.id}`)
+                                                                }
+                                                                sx={{
+                                                                    fontWeight: 800,
+                                                                    whiteSpace: 'nowrap',
+                                                                }}
+                                                            >
+                                                                View
+                                                            </Button>
+                                                        </Box>
+
+                                                        {subcategories.length > 0 && (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'grid',
+                                                                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                                                                    gap: 1.25,
+                                                                }}
+                                                            >
+                                                                {subcategories.map((subcategory) => {
+                                                                    const stones =
+                                                                        gemstonesByCategoryId.get(subcategory.id) ||
+                                                                        [];
+
+                                                                    return (
+                                                                        <Box
+                                                                            key={subcategory.id}
+                                                                            sx={{
+                                                                                borderRadius: 1,
+                                                                                bgcolor: '#F8FAFC',
+                                                                                border: '1px solid #EEF2F7',
+                                                                                p: 1.35,
+                                                                            }}
+                                                                        >
+                                                                            <Typography
+                                                                                onClick={() =>
+                                                                                    goTo(
+                                                                                        `/gemstones?category=${subcategory.id}`,
+                                                                                    )
+                                                                                }
+                                                                                sx={{
+                                                                                    cursor: 'pointer',
+                                                                                    fontSize: 16,
+                                                                                    lineHeight: 1.25,
+                                                                                    fontWeight: 900,
+                                                                                    color: '#111827',
+                                                                                    '&:hover': {
+                                                                                        color: 'secondary.main',
+                                                                                    },
+                                                                                }}
+                                                                            >
+                                                                                {subcategory.name}
+                                                                            </Typography>
+
+                                                                            {/* {subcategory.description && (
+                                                                                <Typography
+                                                                                    sx={{
+                                                                                        mt: 0.4,
+                                                                                        color: 'text.secondary',
+                                                                                        fontSize: 12.5,
+                                                                                        lineHeight: 1.45,
+                                                                                        display: '-webkit-box',
+                                                                                        WebkitLineClamp: 1,
+                                                                                        WebkitBoxOrient: 'vertical',
+                                                                                        overflow: 'hidden',
+                                                                                    }}
+                                                                                >
+                                                                                    {subcategory.description}
+                                                                                </Typography>
+                                                                            )} */}
+
+                                                                            {/* <Box
+                                                                                sx={{
+                                                                                    display: 'grid',
+                                                                                    gap: 0.35,
+                                                                                    mt: 1,
+                                                                                }}
+                                                                            >
+                                                                                {stones.slice(0, 4).map((stone) => (
+                                                                                    <Typography
+                                                                                        key={stone.id}
+                                                                                        onClick={() =>
+                                                                                            goTo(
+                                                                                                `/gemstones/${stone.slug}`,
+                                                                                            )
+                                                                                        }
+                                                                                        sx={{
+                                                                                            cursor: 'pointer',
+                                                                                            color: 'text.secondary',
+                                                                                            fontSize: 14,
+                                                                                            lineHeight: 1.45,
+                                                                                            fontWeight: 600,
+                                                                                            display: 'flex',
+                                                                                            alignItems: 'center',
+                                                                                            gap: 0.75,
+                                                                                            '&:before': {
+                                                                                                content: '""',
+                                                                                                width: 4,
+                                                                                                height: 4,
+                                                                                                borderRadius: '50%',
+                                                                                                bgcolor: 'secondary.main',
+                                                                                                flexShrink: 0,
+                                                                                            },
+                                                                                            '&:hover': {
+                                                                                                color: 'secondary.main',
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        {stone.name}
+                                                                                    </Typography>
+                                                                                ))}
+
+                                                                                {stones.length === 0 && (
+                                                                                    <Typography
+                                                                                        onClick={() =>
+                                                                                            goTo(
+                                                                                                `/gemstones?category=${subcategory.id}`,
+                                                                                            )
+                                                                                        }
+                                                                                        sx={{
+                                                                                            cursor: 'pointer',
+                                                                                            color: 'text.secondary',
+                                                                                            fontSize: 13,
+                                                                                            fontWeight: 700,
+                                                                                            '&:hover': {
+                                                                                                color: 'secondary.main',
+                                                                                            },
+                                                                                        }}
+                                                                                    >
+                                                                                        View stones
+                                                                                    </Typography>
+                                                                                )}
+                                                                            </Box> */}
+                                                                        </Box>
+                                                                    );
+                                                                })}
+                                                            </Box>
+                                                        )}
+
+                                                        {subcategories.length === 0 && mainCategoryStones.length > 0 && (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    flexWrap: 'wrap',
+                                                                    gap: 0.75,
+                                                                    mt: 1.5,
+                                                                }}
+                                                            >
+                                                                {mainCategoryStones.slice(0, 6).map((stone) => (
+                                                                    <Button
+                                                                        key={stone.id}
+                                                                        size="small"
+                                                                        variant="outlined"
+                                                                        onClick={() =>
+                                                                            goTo(`/gemstones/${stone.slug}`)
+                                                                        }
+                                                                        sx={{
+                                                                            borderRadius: 999,
+                                                                            textTransform: 'none',
+                                                                            fontWeight: 700,
+                                                                        }}
+                                                                    >
+                                                                        {stone.name}
+                                                                    </Button>
+                                                                ))}
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                );
+                                            })}
+                                        </Box>
+                                    </Box>
+                                )}
                                 {activeMenu === 'categories' && (
                                     <Box
                                         sx={{
@@ -535,24 +1020,32 @@ export default function CustomerHeader() {
                     </Box>
 
                     <List>
-                        <ListItemButton onClick={() => goTo('/')}>
+                        <ListItemButton selected={activeHeaderPath === '/'} onClick={() => goTo('/')}>
                             <ListItemText primary="Home" />
                         </ListItemButton>
 
-                        <ListItemButton onClick={() => goTo('/jewellery')}>
+                        <ListItemButton selected={activeHeaderPath === '/jewellery'} onClick={() => goTo('/jewellery')}>
                             <ListItemText primary="All Jewellery" />
                         </ListItemButton>
 
-                        <ListItemButton onClick={() => goTo('/categories')}>
+                        <ListItemButton selected={location.pathname.startsWith('/gemstones')} onClick={() => goTo('/gemstones')}>
+                            <ListItemText primary="Gemstones" />
+                        </ListItemButton>
+
+                        <ListItemButton selected={location.pathname.startsWith('/gemstone-categories')} onClick={() => goTo('/gemstone-categories')}>
+                            <ListItemText primary="Gemstone Categories" />
+                        </ListItemButton>
+
+                        <ListItemButton selected={activeHeaderPath === '/categories'} onClick={() => goTo('/categories')}>
                             <ListItemText primary="All Categories" />
                         </ListItemButton>
 
-                        <ListItemButton onClick={() => goTo('/favourites')}>
+                        <ListItemButton selected={activeHeaderPath === '/favourites'} onClick={() => goTo('/favourites')}>
                             <ListItemText primary="Favourites" />
                         </ListItemButton>
 
                         {isAuthenticated && (
-                            <ListItemButton onClick={() => goTo('/profile')}>
+                            <ListItemButton selected={activeHeaderPath === '/profile'} onClick={() => goTo('/profile')}>
                                 <ListItemText primary="My Profile" />
                             </ListItemButton>
                         )}
