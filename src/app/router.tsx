@@ -12,7 +12,9 @@ import NotFoundPage from '../pages/not-found/NotFoundPage';
 import ProfilePage from '../pages/profile/ProfilePage';
 import ForgotPasswordPage from '../pages/auth/ForgotPassword';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
-
+import GemstoneCategoriesPage from '../pages/gemstones/GemstoneCategoriesPage';
+import GemstoneListPage from '../pages/gemstones/GemstoneListPage';
+import GemstoneDetailsPage from '../pages/gemstones/GemstoneDetailsPage';
 
 export const router = createBrowserRouter([
     {
@@ -37,6 +39,18 @@ export const router = createBrowserRouter([
             {
                 path: '/jewellery/:slug',
                 element: <JewelleryDetailsPage />,
+            },
+            {
+                path: '/gemstone-categories',
+                element: <GemstoneCategoriesPage />,
+            },
+            {
+                path: '/gemstones',
+                element: <GemstoneListPage  />,
+            },
+            {
+                path: '/gemstones/:slug',
+                element: <GemstoneDetailsPage />,
             },
             {
                 element: <ProtectedRoute />,
