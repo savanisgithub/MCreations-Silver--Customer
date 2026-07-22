@@ -6,33 +6,72 @@ export interface FlatGemstoneCategory {
     description: string | null;
     parent_id: number | null;
     parent_name: string | null;
-    level: 0 | 1;
+    level: number;
 }
 
 export function flattenGemstoneCategories(
     categories: GemstoneCategory[],
+    parentName: string | null = null,
+    level = 0,
 ): FlatGemstoneCategory[] {
     return categories.flatMap((category) => {
-        const mainCategory: FlatGemstoneCategory = {
+        const flatCategory: FlatGemstoneCategory = {
             id: category.id,
             name: category.name,
             description: category.description,
             parent_id: category.parent_id,
-            parent_name: null,
-            level: 0,
+            parent_name: parentName,
+            level,
         };
 
-        const children: FlatGemstoneCategory[] = (category.children || []).map(
-            (child) => ({
-                id: child.id,
-                name: child.name,
-                description: child.description,
-                parent_id: child.parent_id,
-                parent_name: category.name,
-                level: 1,
-            }),
+        const children = flattenGemstoneCategories(
+            category.children || [],
+            category.name,
+            level + 1,
         );
 
-        return [mainCategory, ...children];
+        return [flatCategory, ...children];
     });
+}
+
+function findGemstoneCategory(
+    categories: GemstoneCategory[],
+    categoryId: number,
+): GemstoneCategory | undefined {
+    for (const category of categories) {
+        if (category.id === categoryId) {
+            return category;
+        }
+
+        const childMatch = findGemstoneCategory(
+            category.children || [],
+            categoryId,
+        );
+
+        if (childMatch) {
+            return childMatch;
+        }
+    }
+
+    return undefined;
+}
+
+function collectGemstoneCategoryIds(category: GemstoneCategory): number[] {
+    return [
+        category.id,
+        ...(category.children || []).flatMap(collectGemstoneCategoryIds),
+    ];
+}
+
+export function getGemstoneCategoryAndDescendantIds(
+    categories: GemstoneCategory[],
+    categoryId: number,
+): number[] {
+    const category = findGemstoneCategory(categories, categoryId);
+
+    if (!category) {
+        return [categoryId];
+    }
+
+    return collectGemstoneCategoryIds(category);
 }

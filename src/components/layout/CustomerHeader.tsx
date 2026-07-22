@@ -767,9 +767,6 @@ export default function CustomerHeader() {
                                                                 }}
                                                             >
                                                                 {subcategories.map((subcategory) => {
-                                                                    const stones =
-                                                                        gemstonesByCategoryId.get(subcategory.id) ||
-                                                                        [];
 
                                                                     return (
                                                                         <Box

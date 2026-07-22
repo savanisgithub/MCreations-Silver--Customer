@@ -95,7 +95,7 @@ export const gemstoneService = {
         const gemstones = Array.from(uniqueGemstones.values()).sort(sortNewestFirst);
         const total = gemstones.length;
         const start = (page - 1) * limit;
-        const totalPages = Math.ceil(total / limit);
+        const totalPages = Math.max(Math.ceil(total / limit), 1);
 
         return {
             success: true,
