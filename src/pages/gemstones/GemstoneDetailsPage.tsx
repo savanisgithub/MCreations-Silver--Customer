@@ -267,7 +267,7 @@ export default function GemstoneDetailsPage() {
                                 'A carefully selected gemstone with detailed imagery and measurement information.'}
                         </Typography>
 
-                        <Box
+                        {/* <Box
                             sx={{
                                 display: 'flex',
                                 flexWrap: 'wrap',
@@ -318,7 +318,7 @@ export default function GemstoneDetailsPage() {
                                     variant="outlined"
                                 />
                             )}
-                        </Box>
+                        </Box> */}
 
                         <Divider sx={{ my: 3 }} />
 

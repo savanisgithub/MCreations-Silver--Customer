@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import {
     Box,
-    Button,
     Chip,
     Container,
-    Divider,
     IconButton,
     Typography,
 } from '@mui/material';
@@ -201,17 +199,59 @@ export default function JewelleryDetailsPage() {
                         }}
                     >
 
-                        <Typography
-                            variant="h2"
+                        <Box
                             sx={{
-                                fontFamily: 'Georgia, Times New Roman, serif',
-                                fontSize: { xs: 38, md: 50 },
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
+                                gap: 2,
                                 mt: 1,
                                 mb: 2,
                             }}
                         >
-                            {item.name}
-                        </Typography>
+                            <Typography
+                                variant="h2"
+                                sx={{
+                                    fontFamily: 'Georgia, Times New Roman, serif',
+                                    fontSize: { xs: 38, md: 50 },
+                                    minWidth: 0,
+                                }}
+                            >
+                                {item.name}
+                            </Typography>
+
+                            <IconButton
+                                aria-label={
+                                    isFavourite
+                                        ? 'Remove from favourites'
+                                        : 'Add to favourites'
+                                }
+                                onClick={handleFavourite}
+                                disabled={
+                                    addFavouriteMutation.isPending ||
+                                    removeFavouriteMutation.isPending
+                                }
+                                sx={{
+                                    mt: 0.75,
+                                    border: '1px solid #E5E7EB',
+                                    bgcolor: isFavourite
+                                        ? 'rgba(239,68,68,0.08)'
+                                        : 'background.paper',
+                                    flexShrink: 0,
+                                    '&:hover': {
+                                        bgcolor: isFavourite
+                                            ? 'rgba(239,68,68,0.12)'
+                                            : '#F8FAFC',
+                                    },
+                                }}
+                            >
+                                {isFavourite ? (
+                                    <FavoriteIcon color="error" />
+                                ) : (
+                                    <FavoriteBorderIcon />
+                                )}
+                            </IconButton>
+                        </Box>
 
                         <Box sx={{ mb: 3 }}>
                             <PriceDisplay price={item.price} variant="large" />
@@ -232,35 +272,9 @@ export default function JewelleryDetailsPage() {
                             {item.description || 'A refined jewellery piece for timeless everyday elegance.'}
                         </Typography>
 
-                        <Divider sx={{ my: 3 }} />
-
-                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                            <Button
-                                size="large"
-                                variant="contained"
-                                startIcon={isFavourite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                                onClick={handleFavourite}
-                            >
-                                {isFavourite ? 'Remove Favourite' : 'Save Favourite'}
-                            </Button>
-
-                            <IconButton
-                                onClick={handleFavourite}
-                                sx={{
-                                    border: '1px solid #E5E7EB',
-                                }}
-                            >
-                                {isFavourite ? (
-                                    <FavoriteIcon color="error" />
-                                ) : (
-                                    <FavoriteBorderIcon />
-                                )}
-                            </IconButton>
-                        </Box>
-
                         <Box
                             sx={{
-                                mt: 4,
+                                mt: 3,
                                 p: 3,
                                 borderRadius: 4,
                                 bgcolor: 'background.paper',
